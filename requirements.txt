@@ -1,0 +1,5 @@
+requests
+pandas
+python-dotenv
+azure-storage-file-datalake
+mk

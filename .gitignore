@@ -1,0 +1,18 @@
+# Environment / secrets
+.env
+
+# Python
+venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Data (raw extracts stay local/in Azure, not in git)
+data/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
