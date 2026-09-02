@@ -1,0 +1,42 @@
+name: Daily Mandi Price Pipeline
+
+on:
+  schedule:
+    # Runs at 14:30 UTC = 20:00 IST daily.
+    # (GitHub Actions cron is always UTC; India is UTC+5:30)
+    - cron: '30 14 * * *'
+  workflow_dispatch: {}  # lets you manually trigger a run from the GitHub UI
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run extraction
+        env:
+          MANDI_API_KEY: ${{ secrets.MANDI_API_KEY }}
+        run: python extract_mandi_data.py
+
+      - name: Upload to Azure ADLS Gen2
+        env:
+          AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+        run: python upload_to_adls.py
+
+      - name: Upload run log as artifact (optional, for debugging)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-data-${{ github.run_id }}
+          path: data/
+          retention-days: 3
